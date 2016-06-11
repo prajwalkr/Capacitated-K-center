@@ -30,7 +30,7 @@ assignments = LpVariable.dicts("assignments",assignments,0,1)
 # defines the problem
 prob = LpProblem("problem", LpMinimize)
 
-# defines the objective function to minimize
+# defines the objective function to minimize : sum(y)
 prob += lpSum([cen[i] for i in range(N)])
 
 ############# Constraint definitions ###################
@@ -39,11 +39,11 @@ prob += lpSum([cen[i] for i in range(N)])
 for i in xrange(N):
 	prob += lpSum([assignments[(i,j)] for j in xrange(N)]) <= L*cen[i]
 
-# Each node assigned to at most one center
+# sum(x_ij) = 1 for all j
 for j in xrange(N):
 	prob += lpSum([assignments[(i,j)] for i in xrange(N)]) == 1
 
-# Any client can be assigned to y[i] iff y[i] is a center
+# y_i >= x_ij for all i,j
 for i in xrange(N):
 	for j in xrange(N):
 		prob += assignments[(i,j)] <= cen[i]
