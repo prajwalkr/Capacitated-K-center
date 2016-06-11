@@ -15,32 +15,48 @@ def randomGraph(n,edges):
 
 N, M = 10, 30
 adj = randomGraph(N, M)
-L,k=3,4
+L,k = 3,4
 
 # declare your variables
-cen = dict(zip([i for i in range(N)],[1 for i in range(N)]))		
-cen_dict = LpVariable.dicts("cen",cen, 0, 1,LpInteger)
+cen = dict(zip([i for i in range(N)],[0 for i in range(N)]))		
+cen = LpVariable.dicts("cen",cen, 0, 1,LpInteger)
 
-res = {}
+assignments = {}
 for i in range(N):
 	for j in range(N):
-		res[(i,j)] = adj[i][j]
-res_dict = LpVariable.dicts("res",res,0,1)
+		assignments[(i,j)] = i == j
+assignments = LpVariable.dicts("assignments",assignments,0,1)
 
 # defines the problem
 prob = LpProblem("problem", LpMinimize)
 
 # defines the objective function to minimize
-prob += lpSum([cen_dict[i] for i in range(N)])
+prob += lpSum([cen[i] for i in range(N)])
+
+############# Constraint definitions ###################
+
+# sum(x_ij) <= L*y[i]
+for i in xrange(N):
+	prob += lpSum([assignments[(i,j)] for j in xrange(N)]) <= L*cen[i]
+
+# Each node assigned to at most one center
+for j in xrange(N):
+	prob += lpSum([assignments[(i,j)] for i in xrange(N)]) == 1
+
+# Any client can be assigned to y[i] iff y[i] is a center
+for i in xrange(N):
+	for j in xrange(N):
+		prob += assignments[(i,j)] <= cen[i]
+
+# Non - negativity constraints
+for i in xrange(N):
+	prob += cen[i] >= 0
+for i in xrange(N):
+	for j in xrange(N):
+		prob += assignments[(i,j)] >= 0
 
 # solve the problem
-status = prob.solve(GLPK(msg=0))
-LpStatus[status]
-print "Centres:-"
-# print the results x1 = 20, x2 = 60
-print cen_dict
-print "Result:-"
-for x in range(h):
-	for y in range(w):
-		print res_dict[x,y],
-	print 
+status = prob.solve()
+print LpStatus[prob.status]
+for v in prob.variables():
+    print(v.name, "=", v.varValue)
