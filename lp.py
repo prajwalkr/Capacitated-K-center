@@ -31,7 +31,7 @@ res_dict = LpVariable.dicts("res",res,0,1)
 prob = LpProblem("problem", LpMinimize)
 
 # defines the objective function to minimize
-prob += lpSum([cen_dict[i] for i in range(10)])
+prob += lpSum([cen_dict[i] for i in range(N)])
 
 # solve the problem
 status = prob.solve(GLPK(msg=0))
