@@ -12,15 +12,15 @@ def randomGraph(n,edges):
 		adj[(EI.GetDstNId(), EI.GetSrcNId())] = 1
 	for i in xrange(n):
 		adj[(i,i)] = 1
-	for x in range(n):
+	'''for x in range(n):
 		for y in range(n):
 			print adj[(x,y)],
-		print
+		print'''
 	return adj
 
-N, M = 10, 10
+N, M = 10, 30
 adj = randomGraph(N, M)
-L,k = 3,4
+L = 3
 
 # declare your variables
 cen = dict(zip([i for i in range(N)],[0 for i in range(N)]))		
@@ -61,5 +61,5 @@ for i in xrange(N):
 # solve the problem
 status = prob.solve(GLPK(msg=0))
 print LpStatus[prob.status]
-for v in prob.variables():
-    print(v.name, "=", v.varValue)
+'''for v in prob.variables():
+    print(v.name, "=", v.varValue)'''
