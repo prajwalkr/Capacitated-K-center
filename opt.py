@@ -20,7 +20,7 @@ def randomGraph(n,edges):
 
 N, M = 10, 10
 adj = randomGraph(N, M)
-L,k = 3,4
+L = 3
 
 # declare your variables
 cen = dict(zip([i for i in range(N)],[0 for i in range(N)]))		
@@ -53,12 +53,12 @@ for j in xrange(N):
 for i in xrange(N):
 	for j in xrange(N):
 		prob += assignments[(i,j)] <= cen[i]
-
+#the assignment can be done only when the edge is present
 for i in xrange(N):
 	for j in xrange(N):
 		prob += assignments[(i,j)] <= adj[(i,j)]
 
-# solve the problem
+# solve the problem using GLPK
 status = prob.solve(GLPK(msg=0))
 print LpStatus[prob.status]
 for v in prob.variables():
