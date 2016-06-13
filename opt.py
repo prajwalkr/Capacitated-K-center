@@ -8,8 +8,11 @@ def randomGraph(n,edges):
 	for EI in UGraph.Edges():
 		adj[EI.GetSrcNId()][EI.GetDstNId()] = 1
 		adj[EI.GetDstNId()][EI.GetSrcNId()] = 1
-
-
+#printing the adjacency matrix 
+for i in range(n):
+	for j in range(n):
+		print adj[i][j],
+	print
 N, M = 10, 30
 adj = randomGraph(N, M)
 L,k = 3,4
