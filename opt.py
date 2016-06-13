@@ -8,10 +8,7 @@ def randomGraph(n,edges):
 	for EI in UGraph.Edges():
 		adj[EI.GetSrcNId()][EI.GetDstNId()] = 1
 		adj[EI.GetDstNId()][EI.GetSrcNId()] = 1
-	'''for x in range(h):
-					for y in range(w):
-						print adj[x][y],
-					print'''
+
 
 N, M = 10, 30
 adj = randomGraph(N, M)
