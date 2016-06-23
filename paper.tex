@@ -1,0 +1,56 @@
+\documentclass[12pt,a4paper,onecolumn]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\author{K. R. Prajwal \\ Sagar Sahani \and  Ketaki Vaidya  \\Anya Chaturvedi }
+\title{Summer Report On The Capacitated K-Center Problem}
+\begin{document}
+\maketitle
+\section{Introduction to our Problem}
+The capacitated K-center problem is a basic facility location problem, where one is asked to locate K facilities in a graph and to assign vertices to these facilities. In doing this we minimize
+the maximum distance from a vertex to the facility to which it is assigned. Moreover, each facility
+may be assigned at most L vertices including itself. This problem is known to be NP-hard.\\
+We show our attempts at solving this problem, counter examples as learnt by us and few basic implementations of the same. The implementations include finding the optimal using the integer program and a partially accurate local search algorithm.
+\section{A Look At The K-center problem}
+Given n vertices with specified distances, one wants to build k facilities at different vertices and minimize the maximum distance of a vertex to a facility. This problem is NP-hard. An approximation algorithm with a factor of $\rho$ ,for a minimization problem,is
+a polynomial time algorithm that guarantees a solution with cost at most $\rho$ times
+the cost of an optimal solution. Approximation algorithms for the basic K-center
+problem have been very well studied and are known to be optimal.
+These schemes present natural methods for obtaining an approximation factor of 2.Given a complete undirected graph G = (V, E) with distances $d(v_i, v_j) \in N$ satisfying the triangle inequality, find a subset $S \subseteq V$ with $|S| = k$.\\ \textbf{Input:}\\1. The vertices must be in a metric space, or in other words a complete graph that satisfies the triangle inequality.\\2. An
+upper bound on the number of centers K.\\
+\textbf{Formal Definition:}\\
+$$\min_{S \subseteq V}\max_{v \in V}\min_{s \in S}d(v,s)$$
+where d is the distance function.\\
+This is much similar to the problem of placing k disks such that all points are covered in the set V and thus finding the minimum radius for the disks.
+%\begin{center}
+
+%\begin{figure}[h]
+ % \includegraphics[scale=0.5]{kcenter.png}
+  %\caption{HELLO}
+  %\label{fig:intro}
+%\end{figure}
+%\end{center}
+\section{The Capacitated K-Center}
+The capacitated K-center problem is nothing but a generalization of the K-center problem. We have to
+output a set of at most K centers,as well as an assignment of vertices to centers. No more than L vertices may be assigned to a single center. Under these constraints,we
+wish to minimize the maximum distance between a vertex u and its assigned center
+$\varphi$(u). \\
+\textbf{Input:}\\1. The vertices must be in a metric space, or in other words a complete graph that satisfies the triangle inequality.\\2. An
+upper bound on the number of centers K.\\3. A maximum load L.\\\textbf{Formal Definition:}\\
+$$ \min_{S \subseteq V}\max_{u \in V}d(u,\varphi(u)) $$such that,   $$|\{u|\varphi(u) = v\}|\leq L \forall v \in S,$$\\where,   $$\varphi : V \rightarrow S.$$
+The first polynomial time approximation
+algorithm for this problem was with an approximation factor of 10. Later a 6-approximation was found which is the best up till date while a 5-approximation works when we can assign multiple centers at a single vertex without including the vertex in L.
+
+\section{Checking the Feasibility of the Input Graph}
+Flow
+\section{The Integer Program}
+\section{Local Search Algorithm}
+\section{Existing Algorithm (6-approximation)}
+\section{Observations made}
+\subsection{Failed Attempts}
+\subsection{Counter Examples}
+\subsection{Current Scenario}
+\end{document}
