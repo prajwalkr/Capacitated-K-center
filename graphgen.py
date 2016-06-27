@@ -55,8 +55,10 @@ class Graph(object):
 				self.adj[(center,client)] = self.adj[(client, center)] = 1
 
 		for x in range(self.N):
-			for y in range(self.N):
-				self.adj[(x,y)] = int(random.random() < self.p)
+			for y in range(x + 1,self.N):
+				if self.adj[(x,y)] != 1:
+					self.adj[(x,y)] = int(random.random() < self.p)
+					self.adj[(y,x)] = int(random.random() < self.p)
 
 
 	#Storing the random graph in G

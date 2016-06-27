@@ -3,6 +3,8 @@ import snap
 from random import shuffle
 from collections import defaultdict, namedtuple
 from graphgen import Graph
+import matplotlib.pyplot as plt 
+import pprint
 
 #Obtaining a random set S of initial k centers
 def getS(G,k):
@@ -61,13 +63,13 @@ def getVmax(G, S, L):
 
 #changing S and Vmax by one swaps so as to achieve the max flow possible after each obtained S
 def doOneSwaps(G, S, L):
-	Vmax = getVmax(G, S, L)
+	Vmax = getVmax(G, S[:], L)
 	while nx.maximum_flow_value(getFlowGraph(G, Vmax, L), 's', 't') > nx.maximum_flow_value(getFlowGraph(G, S, L), 's', 't'):
 		S = Vmax
-		Vmax = getVmax(G, S, L)
+		Vmax = getVmax(G, S[:], L)
 	return S
 
-k, L, p = 5, 3, 0.3
+k, L, p = 5, 3, 0.4
 N = k*L
 starSpec = namedtuple('specs', 'struct k l p')
 specs = starSpec('stars', k, L, p)
@@ -98,5 +100,19 @@ if nx.maximum_flow_value(getFlowGraph(G, S, L), 's', 't') == N:
 					H[s].append(v)
 else:
 	print "Failed!"
+edges = 0
+#print graph.adj
+adj = [[0 for _ in xrange(N)] for _ in xrange(N)]
+for key, val in graph.adj.iteritems():
+	if val == 1:
+		adj[key[0]][key[1]] = 1
+		edges += 1
+
+edges -= N
+edges /= 2
+
+print "Edges: ", edges
 print S
 print H
+
+#pprint.pprint(adj)
