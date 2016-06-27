@@ -1,35 +1,8 @@
 import networkx as nx
 import snap
 from random import shuffle
-from collections import defaultdict
-
-#Generating a random graph using snap
-def randomGraph(n,edges):
-	UGraph = snap.GenRndGnm(snap.PUNGraph, n, edges)
-	adj = dict()
-	for x in range(n):
-		for y in range(n):
-			adj[(x,y)] = 0
-	for EI in UGraph.Edges():
-		adj[(EI.GetSrcNId(),EI.GetDstNId())] = 1
-		adj[(EI.GetDstNId(), EI.GetSrcNId())] = 1
-	for i in xrange(n):
-		adj[(i,i)] = 1
-	for x in range(n):
-		for y in range(n):
-			print adj[(x,y)],
-		print
-	return adj
-
-#Storing the random graph in G
-def getGraph(N,adj):
-	G = nx.Graph()
-	G.add_nodes_from([x for x in xrange(N)])
-	for i in xrange(N):
-		for j in xrange(i,N):
-			if adj[(i,j)]:
-				G.add_edge(i,j)
-	return G
+from collections import defaultdict, namedtuple
+from graphgen import Graph
 
 #Obtaining a random set S of initial k centers
 def getS(G,k):
@@ -94,10 +67,12 @@ def doOneSwaps(G, S, L):
 		Vmax = getVmax(G, S, L)
 	return S
 
-N, M = 10,30
-adj = randomGraph(N,M)
-k, L = 5,3
-G = getGraph(N,adj)
+k, L, p = 5, 3, 0.3
+N = k*L
+starSpec = namedtuple('specs', 'struct k l p')
+specs = starSpec('stars', k, L, p)
+graph = Graph(specs)
+G = graph.nxGraph
 S = getS(G,k)
 S = doOneSwaps(G, S, L)
 H = defaultdict(list)
