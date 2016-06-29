@@ -3,9 +3,6 @@ from pulp import *
 
 def randomGraph(n,edges):
 	UGraph = snap.GenRndGnm(snap.PUNGraph, n, edges)
-	#Graph = snap.LoadEdgeList(snap.PUNGraph, "facebook_combined.txt", 0, 1, ' ')
-	#snap.PrintInfo(Graph, "Facebook Data Set")
-	#UGraph = snap.GetRndSubGraph(Graph,n)
 	adj = dict()
 	for x in range(n):
 		for y in range(n):
@@ -15,10 +12,6 @@ def randomGraph(n,edges):
 		adj[(EI.GetDstNId(), EI.GetSrcNId())] = 1
 	for i in xrange(n):
 		adj[(i,i)] = 1
-	#for x in range(n):
-	#	for y in range(n):
-	#		print adj[(x,y)],
-	#	print
 	return adj
 
 N=input("No. of vertices (n<4039):")
