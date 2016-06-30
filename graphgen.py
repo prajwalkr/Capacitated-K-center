@@ -3,8 +3,6 @@ import random
 import networkx as nx
 from collections import namedtuple
 
-__author__ = 'K R Prajwal'
-
 class Graph(object):
 	def __init__(self, specs):
 		self.k = specs.k
