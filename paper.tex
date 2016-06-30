@@ -5,21 +5,21 @@
 \usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
-\author{Anya Chaturvedi \\ Ketaki Vaidya \and K. R. Prajwal \\ Sagar Sahani }
+\usepackage{float}
+\usepackage{newunicodechar}
+\newunicodechar{ﬁ}{fi}
+\newunicodechar{ﬂ}{fl}
+\author{Anya Chaturvedi \\ Ketaki Vaidya \and K. R. Prajwal \\ Sagar Sahni  }
 \title{Summer Report On The Capacitated K-Center Problem}
 \begin{document}
 \maketitle
 \section{Introduction to our Problem}
-The capacitated K-center problem is a basic facility location problem, where one is asked to locate K facilities in a graph and to assign vertices to these facilities. In doing this we minimize
-the maximum distance from a vertex to the facility to which it is assigned. Moreover, each facility
-may be assigned at most L vertices including itself. This problem is known to be NP-hard.\\
+The capacitated K-center problem is basically a facility location problem, where one is asked to locate K facilities in a graph and to assign vertices to these facilities. In doing this we minimize
+the maximum distance from a vertex to the facility to which it is assigned while keeping in mind that each facility may be assigned at most L vertices including itself. This problem is known to be NP-hard.\\
 We show our attempts at solving this problem, counter examples as learnt by us and few basic implementations of the same. The implementations include finding the optimal using the integer program and a partially accurate local search algorithm.
 \section{A Look At The K-center problem}
-Given n vertices with specified distances, one wants to build k facilities at different vertices and minimize the maximum distance of a vertex to a facility. This problem is NP-hard. An approximation algorithm with a factor of $\rho$ ,for a minimization problem,is
-a polynomial time algorithm that guarantees a solution with cost at most $\rho$ times
-the cost of an optimal solution. Approximation algorithms for the basic K-center
-problem have been very well studied and are known to be optimal.
-These schemes present natural methods for obtaining an approximation factor of 2.Given a complete undirected graph G = (V, E) with distances $d(v_i, v_j) \in N$ satisfying the triangle inequality, find a subset $S \subseteq V$ with $|S| = k$.\\ \textbf{Input:}\\1. The vertices must be in a metric space, or in other words a complete graph that satisfies the triangle inequality.\\2. An
+The problem taken up by us is actually a generalization of the K-center problem which we will explain here. Given n vertices with specified distances, one wants to build k facilities at different vertices and minimize the maximum distance of a vertex to a facility. This problem is NP-hard. An approximation algorithm with a factor of $\eta$ ,for a minimization problem,is
+a polynomial time algorithm that guarantees a solution with cost at most $\eta$ times the cost of an optimal solution. For the basic K-center methods have been presented for obtaining an approximation factor of 2. Given a complete undirected graph G = (V, E) with distances $d(v_i, v_j) \in N$ satisfying the triangle inequality, find a subset $S \subseteq V$ with $|S| = k$.\\ \textbf{Input:}\\1. The vertices must be in a metric space, or in other words a complete graph that satisfies the triangle inequality.\\2. An
 upper bound on the number of centers K.\\
 \textbf{Formal Definition:}\\
 $$\min_{S \subseteq V}\max_{v \in V}\min_{s \in S}d(v,s)$$
@@ -45,12 +45,175 @@ The first polynomial time approximation
 algorithm for this problem was with an approximation factor of 10. Later a 6-approximation was found which is the best up till date while a 5-approximation works when we can assign multiple centers at a single vertex without including the vertex in L.
 
 \section{Checking the Feasibility of the Input Graph}
-Flow
+We say that, if we solve the capacitated K-center problem then it will be equivalent to getting the minimum value of W for which G(W) has a capacitated dominating set of size k, where G(W) refers to the graph having all edges with edge weight less than or equal to W.\\
+We can easily set up such an equivalence if we slightly modify our problem. Given a graph $G = (V,E)$ and a capacity function $c : V \rightarrow N$, $S \subseteq V$ is a capacitated dominating set if there exists a mapping $f : V \backslash S \rightarrow S$ (domination mapping) such that:\\\\ 1. $\forall v \in V \backslash S,\forall s \in S,f(v) = s \Longrightarrow (v,s) \in E$\\ \\2. $\forall s \in S,| \{ v \in V \backslash S | f(v) = s \} | \leq c(s)$\\ \\In the new version of the k-center problem, the goal is to get a set S of k vertices and an assignment $h : V \backslash S \rightarrow S$ of every vertex (in $V \backslash S$) to an open center such that the longest distance between a vertex and a center it is assigned to is minimum and no facility is assigned more vertices than its capacity. Note that, the assignment is not for all vertices in V . We are making the assumption that every center serves itself and the capacity (L(v)) of a vertex $v \in V$ is the maximum number of clients it can serve (excluding itself). \\\\Now we can say that, solving the capacitated k-center problem is equivalent to getting the minimum value of W for which G(W) has a capacitated dominating set of size k. 
+$S \subseteq V$ is an optimal solution to the capacitated K-center problem if and only if w(S) is the minimum value of W for which the graph G(W) has a capacitated dominating set of size k.
+It is also easy to verify that a capacitated dominating set of size k in $G(w(S))^i$, for some i and some optimal solution S, forms an i-approximation for the k-center problem.\\ But the capacitated dominating set problem is an NP-complete problem. So, we cannot get a capacitated dominating set of size k in polynomial time, unless $P = NP$ Similar to the uncapacitated version the capacitated version too is hard to approximate within a factor of 2.
+\subsection{Verification using a Network Flow }
+Given a graph $G = (V,E)$ and a capacity function $c : V \rightarrow N$, checking whether $S \in V$ is a capacitated dominating set can be viewed as a network problem. Construct a directed graph $G_S = (V_S,E_S)$ as follows:\\\\ 1. $V_S = V \cup \{s,t\}$\\\\ 2. $E_S = \{(s,v_i) | v_i \in V \backslash S \} \cup \{(s_i,t) | s_i \in S \}\cup \{(v_i,s_i) | v_i \in V \backslash S \wedge s_i \in S \wedge (v_i,s_i) \in E \}$\\\\ Let $c_S : E_S \rightarrow N$ be the capacity function such that, $$c_S(e_{uv}) =\left\{ \begin{array}{cc}(c(u),  &  v = t \\\\ 1, & otherwise \end{array}\right.$$
+In the final graph $G_S$ we add two more vertices s (source) and t (sink) to the vertex set of G. We add directed edges from s to all vertices in $V \backslash S$, from each vertex in $V \backslash S$ to its neighbours in S and each vertex in S to t. We take the capacity function to be equal to the capacity of the source vertex for edges incident on t and to be equal to 1 for every other edge in $E_S$. \\
+\begin{center}
+ \begin{figure}[H]
+ \begin{center}
+ \includegraphics[scale=1]{flow.png}
+ \end{center}
+  \caption{The flow network}
+  \label{Figure 1}
+\end{figure}
+ \end{center} Now it is easy to verify that, S is a capacitated dominating set in G if and only if $G_S$ has a maximum coverage of $|V \backslash S|$ from s to t equal to the total vertices in the graph. 
+
 \section{The Integer Program}
+Linear programming is a mathematical technique for maximizing or minimizing a linear function of several variables such as output or cost. The decision variables with respect to which the optimum is obtained can come out to be fractional or any real number. An integer programming problem is a mathematical optimization or feasibility program in which
+some or all of the variables are restricted to be integers which is the major difference it has from linear programming. Ours is a problem where we
+wish to minimize the maximum distance between a vertex u and its assigned center thus our integer program is framed as:
+\\\\
+\textbf{Variables:}\begin{enumerate}
+\item \textit{\textbf{cen}} - an integer dictionary which specifies the centers among the vertices
+where if $cen[i]=1$ then the $i^{th}$ index vertex is taken to be a center otherwise not.\item \textit{\textbf{assignments}} - dictionary $assignments[i][j]=1$ will represent that the $j^th$ index vertex is assigned to the center created at the $i^th$ index vertex, we initialize it with the adjacency matrix
+\item \textit{\textbf{N}} - represents the total number of vertices
+\item \textit{\textbf{adj}} - a dictionary which stores the adjacency matrix of the graph 
+
+\end{enumerate}
+
+\begin{center}
+
+\begin{figure}[H]
+ \includegraphics[scale=1]{1.png}
+  \caption{Code}
+  \label{Figure 2}
+\end{figure}
+
+\begin{figure}[H]
+ \includegraphics[scale=1]{2.png}
+  \caption{Code}
+  \label{Figure 3}
+\end{figure}
+\end{center}
+\textbf{Objective Function:}\\
+\hspace{15mm} $$z=\sum_{i=1}^{N}cen[i]$$
+
+\textbf{Constraints:}
+\begin{enumerate}
+\item $\forall i \sum_{j=1}^{N}assignments[i][j]\leq L*cen[i]$\\\hspace{1cm}\ldots makes sure no more than L vertices are assigned to a center
+\item $\forall j \sum_{i=1}^{N}assignments[i][j] = 1$\\\hspace{1cm}\ldots a vertex can be assigned only to a single center
+\item $\forall i \, \forall j \, assignments[i][j] \leq cen[i]$\\\hspace{1cm}\ldots a vertex can only be assigned to a second vertex if the second vertex is a center
+\item $\forall i , \forall j \, assignments[i][j] \leq adj[i][j]$\\\hspace{1cm}\ldots 
+assignment of vertices can only be done if the edge is present in the original graph
+
+\end{enumerate}
+
+
+
 \section{Local Search Algorithm}
-\section{Existing Algorithm (6-approximation)}
+Local search can be used on problems that can be formulated as finding a solution maximizing a criterion among a number of candidate solutions.
+A local search algorithm starts from a candidate solution and then iteratively moves to a neighbour solution. We move from solution to solution in the space of candidate solutions (the search space) by applying local changes, until a solution optimal is found.
+We have used a local search algorithm which was formed by Aounon. It doesnt work on a set of graphs but we get the solution for some general graphs we tested on.Here, we start with a set S of random k vertices in graph G . Let S be the set of all k vertex sets which are formed by replacing one vertex in S by a vertex in V (one-swap vertex sets). We look for the set in S which maximizes the number of dominated vertices. If the optimum set dominates more vertices than S then we set S to that set and continue the process till we have reached a local optima. We do the assignments through a network flow graph.\\\\
+\textbf{Algorithm:}\\
+$S \leftarrow {v1, v2,…., vk}$\\
+$S' \leftarrow {one-swap\: vertex\: sets\: of\: S_g}$\\
+$V_{max} \leftarrow arg\: max_{ V \in S} \: MaxFlow(G_{V} , c_{V} )$\\
+$while \: MaxFlow(G_{V_{max}}; c_{V_{max}}) > MaxFlow(G_S; c_S)\: do$ $ \par S \leftarrow V_{max} \par S' \leftarrow {one-swap\: vertex \:sets \:of \:S}\par V_{max} \leftarrow argmax _{V \in S}\: MaxFlow(G_V , c_V )$\\
+$end\: while$\\
+$if\: MaxFlow(G_S , c_S) = n - k\: then \par
+for \: all \: v \in V \:do \par \hspace{1cm} h(v) = s:\: if\: fmax(v, s) = 1\par
+end \: for\par
+return\: S,\: h$\\
+$end\: if$\\
+
+
+\begin{figure}[H]
+ \includegraphics[scale=1]{a.png}
+  \caption{Code}
+  \label{Figure 4}
+\end{figure}
+
+\begin{figure}[H]
+ \includegraphics[scale=1]{b.png}
+  \caption{Code}
+  \label{Figure 5}
+\end{figure}
+
+\begin{figure}[H]
+ \includegraphics[scale=1]{c.png}
+  \caption{Code}
+  \label{Figure 6}
+\end{figure}
+
+\begin{figure}[H]
+ \includegraphics[scale=1]{d.png}
+  \caption{Code}
+  \label{Figure 7}
+\end{figure}
+
+\section{Star Graph Generation}
+In an attempt to try our programs on a more clustered data set, this program was implemented such that in this star graphs are formed which are sparsely connected to each other by edges which are added to the graph based on a probability p.
+
+\begin{figure}[H]
+ \includegraphics[scale=1]{g1.png}
+  \caption{Code}
+  \label{Figure 8}
+\end{figure}
+
+\begin{figure}[H]
+ \includegraphics[scale=1]{g2.png}
+  \caption{Code}
+  \label{Figure 9}
+\end{figure}
+
 \section{Observations made}
-\subsection{Failed Attempts}
+This section basically focuses on all our trials and errors we had during our intern on this topic along with few of the concepts learnt which provide the base for these trials.
+\subsection{Lower Bound on K}
+
+\subsection{Our Attempts}
+\begin{itemize}
+\item In our attempt we start by applying the 2-approximation K-center algorithm on the given graph. We then tried to apply what we had learnt by reading the OPT + 1 local search algorithm of the min-degree spanning tree from section 2.6 of Williamson \& Schmoy. Effectively,if possible we transferred the load from the highest capacity nodes to lower ones through a contiguous sequence of edge assignment swaps until we reach a vertex with lower capacity as visible in the figure. \\
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.25]{d3.jpg}
+  \caption{reassignment through propagation}
+  \label{Figure 8}
+\end{center}
+\end{figure}
+\textbf{Algorithm:}
+\begin{enumerate}
+\item Start with k' centers of $G^2$ with no regard to capacity L using the 2-approximation algorithm for uncapacitated k-center.
+\item $C \leftarrow$ set of all k-centers
+\item $C^l \leftarrow$ subset of C such that $\forall C \in C^l, C$ covers exactly l clients.
+\item In each phase:\\
+\hspace{1cm}$l \leftarrow$ the maximum degree of any center\\
+\hspace{1cm}$C_l \leftarrow$ set of all centers with degree l
+\item Subphase (while there are center with degree l do:)
+\begin{enumerate}
+\item Choose a client v assigned to some center in $C_l$.
+\item Choose another client $C_m$ (m<l) of minimum degree among all the centers v is connected to or some $C_m$ which is connected through some alternate manner of center then non center and finally with v.
+\end{enumerate}
+\end{enumerate}
+This is done in order to reduce the maximum number of assignments to a particular center so as to reach the capacity L. This propagation is possible only when a non center is connected to two or more centers and hence reassignment can be done.\\ But we still might have too few centers in dense cliques while just sufficient in other parts or maybe even having residual capacities in sparse areas. We also have a counter example for the same. \\
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.25]{d1.jpg}
+  \caption{Counter Example}
+  \label{Figure 9}
+\end{center}
+\end{figure} Maybe moving to higher powers of G may contribute to requiring less centers at regions where at present the centers are suffice.\\Hence, from $G^2$ we move to $G^4$. Here, each center with its clients forming a star graph will transform into a clique.\begin{figure}
+\begin{center}
+\includegraphics[scale=0.25]{d2.jpg}
+  \caption{Clique formation}
+  \label{Figure 10}
+\end{center}
+\end{figure} With such a change we might me able to merge few cliques by placing a center on a common node of two cliques(while removing their respective centers) such that both the cliques add up to give vertices less than L. \\
+Following this we have free centers available which we can place in dense cliques with high degree of vertices.
+\begin{figure}
+\begin{center}
+\includegraphics[scale=0.3]{d4.jpg}
+  \caption{Merging}
+  \label{Figure 11}
+\end{center}
+\end{figure}
+Like here we obtain one extra center. The problem still remains on how to keep obtaining such centers other than by merging and then placing them at an appropriate position.\\
+Further, we try to come up with some kind of data structure that might help us make some claims on the lower bound on K. 
+
+\end{itemize}
 \subsection{Counter Examples}
 \subsection{Current Scenario}
 \end{document}
