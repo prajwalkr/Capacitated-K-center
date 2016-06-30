@@ -20,8 +20,7 @@ def getFlowGraph(G, S, L):
 	for x in G.nodes():
 		if x in S:
 			FG.add_node(x + N)
-		else:
-			FG.add_node(x)
+		FG.add_node(x)
 
 	FG.add_nodes_from(['s','t'])
 	edges = set(G.edges())
@@ -69,10 +68,11 @@ def doOneSwaps(G, S, L):
 		Vmax = getVmax(G, S[:], L)
 	return S
 
-k, L, p = 5, 3, 0.4
+k, L = 10, 5
 N = k*L
-starSpec = namedtuple('specs', 'struct k l p')
-specs = starSpec('stars', k, L, p)
+edges = 130
+starSpec = namedtuple('specs', 'struct N M k l')
+specs = starSpec('random', N, edges, k, L)
 graph = Graph(specs)
 G = graph.nxGraph
 S = getS(G,k)
@@ -114,5 +114,3 @@ edges /= 2
 print "Edges: ", edges
 print S
 print H
-
-#pprint.pprint(adj)
