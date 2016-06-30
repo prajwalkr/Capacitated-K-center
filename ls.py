@@ -1,10 +1,35 @@
 import networkx as nx
 import snap
 from random import shuffle
-from collections import defaultdict, namedtuple
-from graphgen import Graph
-import matplotlib.pyplot as plt 
-import pprint
+from collections import defaultdict
+
+#Generating a random graph using snap
+def randomGraph(n,edges):
+	UGraph = snap.GenRndGnm(snap.PUNGraph, n, edges)
+	adj = dict()
+	for x in range(n):
+		for y in range(n):
+			adj[(x,y)] = 0
+	for EI in UGraph.Edges():
+		adj[(EI.GetSrcNId(),EI.GetDstNId())] = 1
+		adj[(EI.GetDstNId(), EI.GetSrcNId())] = 1
+	for i in xrange(n):
+		adj[(i,i)] = 1
+	for x in range(n):
+		for y in range(n):
+			print adj[(x,y)],
+		print
+	return adj
+
+#Storing the random graph in G
+def getGraph(N,adj):
+	G = nx.Graph()
+	G.add_nodes_from([x for x in xrange(N)])
+	for i in xrange(N):
+		for j in xrange(i,N):
+			if adj[(i,j)]:
+				G.add_edge(i,j)
+	return G
 
 #Obtaining a random set S of initial k centers
 def getS(G,k):
@@ -18,10 +43,9 @@ def getFlowGraph(G, S, L):
 	N = len(G.nodes())
 	#for common nodes in V and S make separate keys for S
 	for x in G.nodes():
+		FG.add_node(x)
 		if x in S:
 			FG.add_node(x + N)
-		else:
-			FG.add_node(x)
 
 	FG.add_nodes_from(['s','t'])
 	edges = set(G.edges())
@@ -63,18 +87,16 @@ def getVmax(G, S, L):
 
 #changing S and Vmax by one swaps so as to achieve the max flow possible after each obtained S
 def doOneSwaps(G, S, L):
-	Vmax = getVmax(G, S[:], L)
+	Vmax = getVmax(G, S, L)
 	while nx.maximum_flow_value(getFlowGraph(G, Vmax, L), 's', 't') > nx.maximum_flow_value(getFlowGraph(G, S, L), 's', 't'):
 		S = Vmax
-		Vmax = getVmax(G, S[:], L)
+		Vmax = getVmax(G, S, L)
 	return S
 
-k, L, p = 5, 3, 0.4
-N = k*L
-starSpec = namedtuple('specs', 'struct k l p')
-specs = starSpec('stars', k, L, p)
-graph = Graph(specs)
-G = graph.nxGraph
+N, M = 10,30
+adj = randomGraph(N,M)
+k, L = 5,3
+G = getGraph(N,adj)
 S = getS(G,k)
 S = doOneSwaps(G, S, L)
 H = defaultdict(list)
@@ -100,19 +122,5 @@ if nx.maximum_flow_value(getFlowGraph(G, S, L), 's', 't') == N:
 					H[s].append(v)
 else:
 	print "Failed!"
-edges = 0
-#print graph.adj
-adj = [[0 for _ in xrange(N)] for _ in xrange(N)]
-for key, val in graph.adj.iteritems():
-	if val == 1:
-		adj[key[0]][key[1]] = 1
-		edges += 1
-
-edges -= N
-edges /= 2
-
-print "Edges: ", edges
 print S
 print H
-
-#pprint.pprint(adj)
