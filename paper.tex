@@ -42,8 +42,8 @@ $\varphi$(u). \\
 upper bound on the number of centers K.\\3. A maximum load L.\\\textbf{Formal Definition:}\\
 $$ \min_{S \subseteq V}\max_{u \in V}d(u,\varphi(u)) $$such that,   $$|\{u|\varphi(u) = v\}|\leq L \forall v \in S,$$\\where,   $$\varphi : V \rightarrow S.$$
 The first polynomial time approximation
-algorithm for this problem was with an approximation factor of 10. Later a 6-approximation was found which is the best up till date while a 5-approximation works when we can assign multiple centers at a single vertex without including the vertex in L.
-
+algorithm for this problem was with an approximation factor of 10. Later a 6-approximation was found which is the best up till date while a 5-approximation works when we can assign multiple centers at a single vertex without including the vertex in L. This was our problem for the summer.
+\\Initially we went through the 2.6 and 9.3 sections of Williamson Schmoy which solve the min degree spanning tree problem which is also NP-hard and got to know of methods like local search used to create approximation algorithms.\\Certifying a graph for an algorithm not only has to ensure that we can show whether a solution is possible for G or not it also involves showing that if a solution is not possible in G then it is not even possible in $G^2,G^3]ldots$
 \section{Checking the Feasibility of the Input Graph}
 We say that, if we solve the capacitated K-center problem then it will be equivalent to getting the minimum value of W for which G(W) has a capacitated dominating set of size k, where G(W) refers to the graph having all edges with edge weight less than or equal to W.\\
 We can easily set up such an equivalence if we slightly modify our problem. Given a graph $G = (V,E)$ and a capacity function $c : V \rightarrow N$, $S \subseteq V$ is a capacitated dominating set if there exists a mapping $f : V \backslash S \rightarrow S$ (domination mapping) such that:\\\\ 1. $\forall v \in V \backslash S,\forall s \in S,f(v) = s \Longrightarrow (v,s) \in E$\\ \\2. $\forall s \in S,| \{ v \in V \backslash S | f(v) = s \} | \leq c(s)$\\ \\In the new version of the k-center problem, the goal is to get a set S of k vertices and an assignment $h : V \backslash S \rightarrow S$ of every vertex (in $V \backslash S$) to an open center such that the longest distance between a vertex and a center it is assigned to is minimum and no facility is assigned more vertices than its capacity. Note that, the assignment is not for all vertices in V . We are making the assumption that every center serves itself and the capacity (L(v)) of a vertex $v \in V$ is the maximum number of clients it can serve (excluding itself). \\\\Now we can say that, solving the capacitated k-center problem is equivalent to getting the minimum value of W for which G(W) has a capacitated dominating set of size k. 
@@ -114,10 +114,7 @@ $S' \leftarrow {one-swap\: vertex\: sets\: of\: S_g}$\\
 $V_{max} \leftarrow arg\: max_{ V \in S} \: MaxFlow(G_{V} , c_{V} )$\\
 $while \: MaxFlow(G_{V_{max}}; c_{V_{max}}) > MaxFlow(G_S; c_S)\: do$ $ \par S \leftarrow V_{max} \par S' \leftarrow {one-swap\: vertex \:sets \:of \:S}\par V_{max} \leftarrow argmax _{V \in S}\: MaxFlow(G_V , c_V )$\\
 $end\: while$\\
-$if\: MaxFlow(G_S , c_S) = n - k\: then \par
-for \: all \: v \in V \:do \par \hspace{1cm} h(v) = s:\: if\: fmax(v, s) = 1\par
-end \: for\par
-return\: S,\: h$\\
+$if\: MaxFlow(G_S , c_S) = n - k\: then \par for \: all \: v \in V \:do \par \hspace{1cm} h(v) = s:\: if\: fmax(v, s) = 1\par end \: for\par return\: S,\: h$\\
 $end\: if$\\
 
 
@@ -163,15 +160,17 @@ In an attempt to try our programs on a more clustered data set, this program was
 \section{Observations made}
 This section basically focuses on all our trials and errors we had during our intern on this topic along with few of the concepts learnt which provide the base for these trials.
 \subsection{Lower Bound on K}
-
+Lets say we make some partition on our input graph such that each partition has two types of vertices. Inner and boundary, the inner vertices are the ones within the particular partition while the boundary vertices are inner vertices which even have edges to other partitions. Let the $i^th$ partition be represented by its inner vertice $C_i$ and its boundary vertices as a function of $C_i$ as $B(C_i)$.\\
+Since we know K vertices can cover up to L vertices so the max vertices than can be covered is $V = K*L$. Hence K can be taken to be approximately $\lceil V/L\rceil$. Thus if we try forming a lower bound so as to claim that the graph requires atleast these many vertices as equal to the bound then it might be of help. \\Here, in the partitioning as described above, for the vertices other than the boundary vertices we can say that they can only be covered by vertices of their own partition thus we need to open centers in the partition itself for such vertices. Thus, if we say there are p partitions then $\sum_{i=1}^{p}\lceil (C_i-B(C_i))/L\rceil$ vertices are required atleast to cover the graph and hence this comes to be a lower bound. 
+\\ This has been presented in a research paper already but the fact that we are not really involving the boundary vertices did not sink in and though it did not work out but we toyed for some time with ideas of somehow involving the boundary vertices. We thought with the current vertices the remaining capacity i.e. $\lceil (C_i-B(C_i))/L\rceil*L-(C_i-B(C_i))$ we may be able to cover some or even all of the boundary vertices. Through this we can decide opening more centers or shifting the centers so as to cover more boundary vertice. But it always depends upon the connectivity of the particular graph and what kind of partition we take and that was where we left this.
 \subsection{Our Attempts}
 \begin{itemize}
 \item In our attempt we start by applying the 2-approximation K-center algorithm on the given graph. We then tried to apply what we had learnt by reading the OPT + 1 local search algorithm of the min-degree spanning tree from section 2.6 of Williamson \& Schmoy. Effectively,if possible we transferred the load from the highest capacity nodes to lower ones through a contiguous sequence of edge assignment swaps until we reach a vertex with lower capacity as visible in the figure. \\
-\begin{figure}
+\begin{figure}[H]
 \begin{center}
 \includegraphics[scale=0.25]{d3.jpg}
   \caption{reassignment through propagation}
-  \label{Figure 8}
+  \label{Figure 13}
 \end{center}
 \end{figure}
 \textbf{Algorithm:}
@@ -188,22 +187,22 @@ This section basically focuses on all our trials and errors we had during our in
 \item Choose another client $C_m$ (m<l) of minimum degree among all the centers v is connected to or some $C_m$ which is connected through some alternate manner of center then non center and finally with v.
 \end{enumerate}
 \end{enumerate}
-This is done in order to reduce the maximum number of assignments to a particular center so as to reach the capacity L. This propagation is possible only when a non center is connected to two or more centers and hence reassignment can be done.\\ But we still might have too few centers in dense cliques while just sufficient in other parts or maybe even having residual capacities in sparse areas. We also have a counter example for the same. \\
-\begin{figure}
+This is done in order to reduce the maximum number of assignments to a particular center so as to reach the capacity L. This propagation is possible only when a non center is connected to two or more centers and hence reassignment can be done.\\ But we still might have too few centers in dense cliques while just sufficient in other parts or maybe even having residual capacities in sparse areas. We also have a counter example for the same as shown in the figure below. The centers are represented by the rectangular marks on the vertices. The left most center is covering many clients within a distance of <=2 where as the same cannot be said for the other centers.\\
+\begin{figure}[H]
 \begin{center}
 \includegraphics[scale=0.25]{d1.jpg}
   \caption{Counter Example}
-  \label{Figure 9}
+  \label{Figure 12}
 \end{center}
-\end{figure} Maybe moving to higher powers of G may contribute to requiring less centers at regions where at present the centers are suffice.\\Hence, from $G^2$ we move to $G^4$. Here, each center with its clients forming a star graph will transform into a clique.\begin{figure}
+\end{figure} Maybe moving to higher powers of G may contribute to requiring less centers at regions where at present the centers are suffice.\\Hence, from $G^2$ we move to $G^4$. Here, each center with its clients forming a star graph will transform into a clique.The same shown in the figure below.\begin{figure}[H]
 \begin{center}
 \includegraphics[scale=0.25]{d2.jpg}
   \caption{Clique formation}
   \label{Figure 10}
 \end{center}
-\end{figure} With such a change we might me able to merge few cliques by placing a center on a common node of two cliques(while removing their respective centers) such that both the cliques add up to give vertices less than L. \\
-Following this we have free centers available which we can place in dense cliques with high degree of vertices.
-\begin{figure}
+\end{figure} With such a change we might be able to merge few cliques by placing a center on a common node of two cliques(while removing their respective centers) such that both the cliques add up to give vertices less than L. \\
+Following this we have free centers available which we can place in dense cliques with high degree of vertices. Like in the figure below in the nodes that were centers in $G^2$ are represented by square labels in the left figure and diamond label on the right while the one which we replace them by in $G^4$ is represent by the square in the right figure.
+\begin{figure}[H]
 \begin{center}
 \includegraphics[scale=0.3]{d4.jpg}
   \caption{Merging}
@@ -211,7 +210,21 @@ Following this we have free centers available which we can place in dense clique
 \end{center}
 \end{figure}
 Like here we obtain one extra center. The problem still remains on how to keep obtaining such centers other than by merging and then placing them at an appropriate position.\\
-Further, we try to come up with some kind of data structure that might help us make some claims on the lower bound on K. 
+Further, we try to come up with some kind of data structure that might help us make some claims on the lower bound on K. \begin{figure}
+
+\end{figure}
+As above we make a level structure with the cliques in set $C_l$ as taken before at level l.After a reassignment is performed, the structure changes, because, always the cliques are taken to be a center and its neighbors. After a reassignment, the set of neighbors of (more than or equal to 2) centers change, and also, their capacities change, thus moving them to different levels than present. \\\textbf{Theorem:}
+When there can be no more edge reassignments, then no center at level l, has an edge of length <= 4 to any node in level l’ >= l+2 for all l. 
+\\
+\textbf{Proof:}
+After there can be no more reassignments, let there exists such a center C at a level l which has an edge to some node P belonging to some level l’ >= l + 2. Let C’ be the center covering the node P. Then we can do a reassignment step such that P gets assigned to C instead of C` thereby moving C` one level down and C one level up. Thus the max degree can decrease this way removing one clique at a time. 
+
+
+\begin{figure}
+
+\end{figure}
+
+This contradicts our assumption that no more reassignment is possible.
 
 \end{itemize}
 \subsection{Counter Examples}
