@@ -197,10 +197,53 @@ Lets say we make some partition on our input graph such that each partition has 
 
 Since we know K vertices can cover up to L vertices so the max vertices than can be covered is $V = K*L$. Hence K can be taken to be approximately $\lceil V/L\rceil$. Thus if we try forming a lower bound so as to claim that the graph requires atleast these many vertices as equal to the bound then it might be of help. 
 
-Here, in the partitioning as described above, for the vertices other than the boundary vertices we can say that they can only be covered by vertices of their own partition thus we need to open centers in the partition itself for such vertices. Thus, if we say there are p partitions then $\sum_{i=1}^{p}\lceil (C_i-B(C_i))/L\rceil$ vertices are required atleast to cover the graph and hence this comes to be a lower bound. 
+Here, in the partitioning as described above, for the vertices other than the boundary vertices we can say that they can only be covered by vertices of their own partition thus we need to open centers in the partition itself for such vertices. Thus, if we say there are p partitions then $\sum_{i=1}^{p}\lceil (C_i-B(C_i))/L\rceil$ vertices are required atleast to cover the graph and hence this comes to be a lower bound. \\\\This has been presented in a research paper already but the fact that we are not really involving the boundary vertices did not sink in and though it did not work out but we toyed for some time with ideas of somehow involving the boundary vertices. We thought with the current vertices the remaining capacity i.e. $\lceil (C_i-B(C_i))/L\rceil*L-(C_i-B(C_i))$ we may be able to cover some or even all of the boundary vertices. Through this we can decide opening more centers or shifting the centers so as to cover more boundary vertice. But it always depends upon the connectivity of the particular graph and what kind of partition we take and that was where we left this.\\ Later when Jatin and Aounon started thinking towards this way we further applied our thinking on the same. 
 
- This has been presented in a research paper already but the fact that we are not really involving the boundary vertices did not sink in and though it did not work out but we toyed for some time with ideas of somehow involving the boundary vertices. We thought with the current vertices the remaining capacity i.e. $\lceil (C_i-B(C_i))/L\rceil*L-(C_i-B(C_i))$ we may be able to cover some or even all of the boundary vertices. Through this we can decide opening more centers or shifting the centers so as to cover more boundary vertice. But it always depends upon the connectivity of the particular graph and what kind of partition we take and that was where we left this.
-\subsection{Our Attempts}
+Lets say we partition the graph into sets of nodes $C_i \: 1 \leq i \leq N$:
+\begin{figure}
+%partitioned figure
+\end{figure}
+As discussed before, the minimum number of centers we need to place inside the partition $C_i$ is $\lceil ((C_i-B(C_i))/L) \rceil$. The residual capacity, which can cover boundary vertices as mentioned above is,$\lceil (C_i-B(C_i))/L\rceil*L-(C_i-B(C_i))$ , which we can use to cover the boundary vertices. 
+\\\\
+To do this, a flow network is created:
+\begin{figure}
+%flow figure for partitions and boundary vertices
+\end{figure}\\
+Now there are two cases:
+\begin{itemize}
+\item If we are not able to find a flow to cover all the boundary vertices with the residual capacities, then there exist a set of partitions $P_1, P_2,\ldots P_i$ and $B(P_1), B(P_2),\ldots B(P_i)$ for which Hall’s theorem doesnt hold i.e.: 
+ $$|B|> {\sum_{i=1}^{N}\lceil (P_i-B(P_i))/L\rceil*L-(P_i-B(P_i))}$$
+which after rearrangement becomes:\\
+$$\lceil (\sum_{i=1}^{N}P_i)/L \rceil > \sum_{i=1}^{N} \lceil P_i/L \rceil   $$
+This in turn means we can merge the above set of partitions to get a better lower bound. The boundary vertices form the interior of the new set of partitions. 
+\item If the flow exists, this is where we are stuck again. We do not know if there is such a set of centers we can choose such that we can make use of enough residual flow required and actually taken into account by the flow network. 
+Our attempt to resolve this:
+\begin{figure}
+%<draw diagram as in the  notebook, day 29>. 
+\end{figure}
+We define
+\begin{itemize}
+
+
+\item Node ‘a’ : A center which does not have edge to any boundary vertex.
+\item Node ‘b’ : An interior non - center, which is a client of ‘a’ and adjacent to a boundary vertex. We will call it the semi boundary vertex. 
+\end{itemize} 
+We observe that if we make as many semi-boundary centers as possible, such that they cover maximum number of boundary vertices, by switching the centers from 'a' to 'b' then we can come to a conclusion. 
+If we make the semi-boundary vertex ‘b’ as a center, then it will cover all the clients that have been covered by ‘a’, but its minimum maximum distance would be 4*OPT. Also, we would need to shift to such a set of semi-boundary vertices that maximises the number of distinct boundary vertices getting covered. 
+
+So, we make a flow network:
+\begin{figure}
+%<diagram of potential semi boundary vertices and existing vertices>
+\end{figure}
+That is, we cannot make greedy moves and just move to the semi-boundary vertices with maximum boundary neighbors. As it is equally necessary to make sure these boundary neighbours are distinct. To ensure this, we create the following flow network:
+\begin{figure}
+%<diagram of the complete flow network>
+\end{figure}
+But we realised that this problem of covering maximum number of boundary vertices will eventually be comparable to the max-coverage problem, which is NP-hard.The comparison is made by taking the nodes inside the partition as the subsets and the universe outside. If there is a way where we can get minimum subsets to cover all of the universe then it is the same solution. Since it is NP-hard we know this won't be possible.
+
+ However, we still feel that this idea of semi-boundary vertices could lead to some result. 
+\end{itemize}
+\subsection{Our Attempt}
 \begin{itemize}
 \item In our attempt we start by applying the 2-approximation K-center algorithm on the given graph. We then tried to apply what we had learnt by reading the OPT + 1 local search algorithm of the min-degree spanning tree from section 2.6 of Williamson \& Schmoy. Effectively,if possible we transferred the load from the highest capacity nodes to lower ones through a contiguous sequence of edge assignment swaps until we reach a vertex with lower capacity as visible in the figure. \\
 \begin{figure}[H]
@@ -257,7 +300,7 @@ Further, we try to come up with some kind of data structure that might help us m
 
 \end{figure}
 As above we make a level structure with the cliques in set $C_l$ as taken before at level l.After a reassignment is performed, the structure changes, because, always the cliques are taken to be a center and its neighbors. After a reassignment, the set of neighbors of (more than or equal to 2) centers change, and also, their capacities change, thus moving them to different levels than present. \\\\\textbf{Theorem:}
-When there can be no more edge reassignments, then no center at level l, has an edge of length <= 4 to any node in level l’ >= l+2 for all l. 
+When there can be no more edge reassignments, then no center at level l, has an edge of length $\leq 4$ to any node in level $l’ \geq l+2$ for all l. 
 \\\\
 \textbf{Proof:}
 After there can be no more reassignments, let there exists such a center C at a level l which has an edge to some node P belonging to some level l’ >= l + 2. Let C’ be the center covering the node P. Then we can do a reassignment step such that P gets assigned to C instead of C` thereby moving C` one level down and C one level up. Thus the max degree can decrease this way removing one clique at a time. 
