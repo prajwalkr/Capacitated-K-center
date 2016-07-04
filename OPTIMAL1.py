@@ -1,7 +1,9 @@
 import snap
 from pulp import *
+from unitSquare import UnitSquareGraph
 
-def randomGraph(n,edges):
+def randomGraph(n):
+	edges=input("No. of edges:")
 	UGraph = snap.GenRndGnm(snap.PUNGraph, n, edges)
 	adj = dict()
 	for x in range(n):
@@ -14,10 +16,12 @@ def randomGraph(n,edges):
 		adj[(i,i)] = 1
 	return adj
 
-N=input("No. of vertices (n<4039):")
-edges=input("No. of edges:")
-adj = randomGraph(N,edges)
-edges = sum([sum(x) for x in adj])/2
+N = input("No. of vertices (n<4039):")
+# adj = randomGraph(N)
+p = 3
+W = 0.5
+adj = UnitSquareGraph(N,p,W).adj
+edges = (sum([val for key, val in adj.iteritems()]) - N)/2
 L = N/10
 
 # declare your variables
