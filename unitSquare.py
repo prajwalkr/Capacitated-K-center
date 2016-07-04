@@ -1,5 +1,4 @@
 from random import random
-from itertools import combinations
 import networkx as nx
 
 class UnitSquareGraph(object):

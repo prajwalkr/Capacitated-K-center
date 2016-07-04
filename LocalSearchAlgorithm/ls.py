@@ -93,34 +93,36 @@ def doOneSwaps(G, S, L):
 		Vmax = getVmax(G, S, L)
 	return S
 
-N, M = 10,30
-adj = randomGraph(N,M)
-k, L = 5,3
-G = getGraph(N,adj)
-S = getS(G,k)
-S = doOneSwaps(G, S, L)
-H = defaultdict(list)
-#max flow value cannot be greater than the number of nodes in the graph or set V
-if nx.maximum_flow_value(getFlowGraph(G, S, L), 's', 't') == N:
-	_,flows = nx.maximum_flow(getFlowGraph(G, S, L), 's', 't')
-	edges = set(G.edges())
-        #if a flow exists along a particular path assigning v to that vertex in S
-	for v in G.nodes():
-		for s in S:
-			if (min(v,s),max(v,s)) in edges:
-				unitflow = False
-				try:
-					if flows[max(v,s + N)][min(v,s + N)] == 1:
-						unitflow = True
-				except KeyError:
+def main(N,adj,k,L):
+	G = getGraph(N,adj)
+	S = getS(G,k)
+	S = doOneSwaps(G, S, L)
+	H = defaultdict(list)
+	result = None
+	#max flow value cannot be greater than the number of nodes in the graph or set V
+	if nx.maximum_flow_value(getFlowGraph(G, S, L), 's', 't') == N:
+		'''_,flows = nx.maximum_flow(getFlowGraph(G, S, L), 's', 't')
+		edges = set(G.edges())
+	        #if a flow exists along a particular path assigning v to that vertex in S
+		for v in G.nodes():
+			for s in S:
+				if (min(v,s),max(v,s)) in edges:
+					unitflow = False
 					try:
-						if flows[min(v,s + N)][max(v,s + N)] == 1:
+						if flows[max(v,s + N)][min(v,s + N)] == 1:
 							unitflow = True
 					except KeyError:
-						pass
-				if unitflow:
-					H[s].append(v)
-else:
-	print "Failed!"
-print S
-print H
+						try:
+							if flows[min(v,s + N)][max(v,s + N)] == 1:
+								unitflow = True
+						except KeyError:
+							pass
+					if unitflow:
+						H[s].append(v)'''
+		result = 'Success'
+	else:
+		result = 'Failed'
+	return result
+
+if __name__ == '__main__':
+	main()
