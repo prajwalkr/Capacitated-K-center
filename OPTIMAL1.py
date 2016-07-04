@@ -92,7 +92,7 @@ def main():
 				res.append(result)
 			p <<= 1
 	except KeyboardInterrupt:
-		pass
+		raise
 	with open('results','w') as f:
 		f.write('\n'.join(res))
 

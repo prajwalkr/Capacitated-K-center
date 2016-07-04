@@ -2,6 +2,8 @@ import networkx as nx
 import snap
 from random import shuffle
 from collections import defaultdict
+import matplotlib.pyplot as plt
+import pprint
 
 #Generating a random graph using snap
 def randomGraph(n,edges):
@@ -43,9 +45,9 @@ def getFlowGraph(G, S, L):
 	N = len(G.nodes())
 	#for common nodes in V and S make separate keys for S
 	for x in G.nodes():
-		FG.add_node(x)
 		if x in S:
 			FG.add_node(x + N)
+		FG.add_node(x)
 
 	FG.add_nodes_from(['s','t'])
 	edges = set(G.edges())
@@ -87,41 +89,51 @@ def getVmax(G, S, L):
 
 #changing S and Vmax by one swaps so as to achieve the max flow possible after each obtained S
 def doOneSwaps(G, S, L):
-	Vmax = getVmax(G, S, L)
+	Vmax = getVmax(G, S[:], L)
 	while nx.maximum_flow_value(getFlowGraph(G, Vmax, L), 's', 't') > nx.maximum_flow_value(getFlowGraph(G, S, L), 's', 't'):
 		S = Vmax
-		Vmax = getVmax(G, S, L)
+		Vmax = getVmax(G, S[:], L)
+	#print nx.maximum_flow_value(getFlowGraph(G, S, L), 's', 't')
 	return S
 
 def main(N,adj,k,L):
-	G = getGraph(N,adj)
-	S = getS(G,k)
-	S = doOneSwaps(G, S, L)
-	H = defaultdict(list)
-	result = None
-	#max flow value cannot be greater than the number of nodes in the graph or set V
-	if nx.maximum_flow_value(getFlowGraph(G, S, L), 's', 't') == N:
-		'''_,flows = nx.maximum_flow(getFlowGraph(G, S, L), 's', 't')
-		edges = set(G.edges())
-	        #if a flow exists along a particular path assigning v to that vertex in S
-		for v in G.nodes():
-			for s in S:
-				if (min(v,s),max(v,s)) in edges:
-					unitflow = False
-					try:
-						if flows[max(v,s + N)][min(v,s + N)] == 1:
-							unitflow = True
-					except KeyError:
+	iterations = 5
+	result = 'Failed'
+	while iterations > 0 and result == 'Failed':
+		G = getGraph(N,adj)
+		S = getS(G,k)
+		S = doOneSwaps(G, S, L)
+		H = defaultdict(list)
+		result = None
+		#max flow value cannot be greater than the number of nodes in the graph or set V
+		if nx.maximum_flow_value(getFlowGraph(G, S, L), 's', 't') == N:
+			'''_,flows = nx.maximum_flow(getFlowGraph(G, S, L), 's', 't')
+			edges = set(G.edges())
+		        #if a flow exists along a particular path assigning v to that vertex in S
+			for v in G.nodes():
+				for s in S:
+					if (min(v,s),max(v,s)) in edges:
+						unitflow = False
 						try:
-							if flows[min(v,s + N)][max(v,s + N)] == 1:
+							if flows[max(v,s + N)][min(v,s + N)] == 1:
 								unitflow = True
 						except KeyError:
-							pass
-					if unitflow:
-						H[s].append(v)'''
-		result = 'Success'
-	else:
-		result = 'Failed'
+							try:
+								if flows[min(v,s + N)][max(v,s + N)] == 1:
+									unitflow = True
+							except KeyError:
+								pass
+						if unitflow:
+							H[s].append(v)'''
+			result = 'Success'
+		else:
+			result = 'Failed'
+		iterations -= 1
+	'''	pos = nx.spring_layout(G)
+	   	nx.draw_networkx_nodes(G, pos, nodelist=S, node_color='b', node_size=200)
+		nx.draw_networkx_nodes(G, pos, nodelist=list(set(G.nodes()) - set(S)), node_color='r', node_size=200)
+		nx.draw_networkx_edges(G, pos, edgeList=list(G.edges()))
+		plt.show()'''
 	return result
 
 if __name__ == '__main__':
