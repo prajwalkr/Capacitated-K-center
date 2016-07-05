@@ -1,6 +1,6 @@
 import networkx as nx
 import snap
-from random import shuffle, randint, choice
+from random import shuffle, randint
 from collections import defaultdict
 import matplotlib.pyplot as plt
 import pprint, pickle
@@ -67,24 +67,23 @@ def getVmax(G, S, L):
 	# flow[i][j] = max-flow in (S, V) when S[i] is swapped with V[j]
 	flow = [[None for _ in xrange(len(V))] for _ in xrange(len(S))]
 	setS = set(S)
-	without_swap_flow = nx.maximum_flow_value(getFlowGraph(G, S, L), 's', 't')
 	for i in xrange(len(S)):
 		for j in xrange(len(V)):
 			if V[j] not in setS:
 				temp = S[i]
 				S[i] = V[j]
 				flow_graph = getFlowGraph(G, S, L)
-				flow[i][j] = nx.maximum_flow_value(flow_graph, 's', 't') > without_swap_flow
+				flow[i][j] = nx.maximum_flow_value(flow_graph, 's', 't')
 				S[i] = temp
 
-	swap_pair = []
+	max_value = 0
+	swap_pair = None
 	for i in xrange(len(S)):
 		for j in xrange(len(V)):
-			if flow[i][j]:
-				swap_pair.append([i,j])
-	if swap_pair:
-		i,j = choice(swap_pair)
-	else: return S
+			if max_value < flow[i][j]:
+				swap_pair = (i,j)
+				max_value = flow[i][j]
+	i,j = swap_pair
 	S[i] = V[j]
 	return S
 
@@ -130,8 +129,8 @@ def main(N,adj,k,L):
 		else:
 			result = 'Failed'
 		iterations -= 1
-	if result == 'Failed' and N <= 50:
-		pos = nx.spring_layout(G,k=0.5)
+	if result == 'Failed' and N <= 30:
+		pos = nx.spring_layout(G)
 		nx.draw_networkx_nodes(G, pos, nodelist=S, node_color='b', node_size=200)
 		nx.draw_networkx_nodes(G, pos, nodelist=list(set(G.nodes()) - set(S)), node_color='r', node_size=200)
 		nx.draw_networkx_edges(G, pos, edgeList=list(G.edges()))

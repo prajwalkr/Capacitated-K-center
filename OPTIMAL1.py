@@ -1,8 +1,9 @@
-import snap
+import snap, os
 from pulp import *
 from unitSquare import UnitSquareGraph
 from random import randint, uniform
 from LocalSearchAlgorithm.ls import main as localSearch
+from pickle import load
 
 def randomGraph(n):
 	edges=input("No. of edges:")
@@ -18,9 +19,10 @@ def randomGraph(n):
 		adj[(i,i)] = 1
 	return adj
 
-def integerProgram(N,p,W):
+def integerProgram(N,adj=None,p=None,W=None):
 	# adj = randomGraph(N)
-	adj = UnitSquareGraph(N,p,W).adj
+	if not adj: 
+		adj = UnitSquareGraph(N,p,W).adj
 	edges = (sum([val for key, val in adj.iteritems()]) - N)/2
 	L = N/10
 
@@ -71,13 +73,36 @@ def integerProgram(N,p,W):
 	result = '{}\t{}\t{}\t{}'.format(N,edges, LpStatus[prob.status], count)
 	return result, adj
 
+def test_counter_cases():
+	header = '\t'.join(['Nodes','Edges','Status','K','Local Search'])
+	print header
+	res = []
+	try:
+		for fname in os.listdir('failures/test'):
+			if not fname.endswith('.png'):
+				adj = load(open('failures/test/' + fname,'r'))
+				N = len(adj)
+				a = dict()
+				for i in xrange(len(adj)):
+					for j in xrange(len(adj)):
+						a[(i,j)] = a[(j,i)] = adj[i][j]
+				opt, adj = integerProgram(N,a)
+				ls = localSearch(N,adj,int(opt.split('\t')[-1]),N/10)
+				result = opt + '\t' + ls
+				print result
+				res.append(result)
+	except KeyboardInterrupt:
+		pass
+	with open('results','w') as f:
+		f.write('\n'.join(res))
+	
 def main():
 	header = '\t'.join(['Nodes','Edges','Status','K','P','Local Search'])
 	print header
 	p = 1
 	RAND_GRAPH_COUNT = 10
 	P_LIMIT = 1 << 10
-	NODE_LIMIT = 80
+	NODE_LIMIT = 40
 	W_LOW, W_HIGH = 0.2, 0.4
 	res = [header]
 	try:
@@ -85,14 +110,14 @@ def main():
 			for _ in xrange(RAND_GRAPH_COUNT):
 				N = randint(20,NODE_LIMIT)
 				W = uniform(W_LOW, W_HIGH)
-				opt, adj = integerProgram(N,p,W)
+				opt, adj = integerProgram(N,dict(),p,W)
 				ls = localSearch(N,adj,int(opt.split('\t')[-1]),N/10)
 				result = opt + '\t' + str(p) + '\t' + ls
 				print result
 				res.append(result)
 			p <<= 1
 	except KeyboardInterrupt:
-		raise
+		pass
 	with open('results','w') as f:
 		f.write('\n'.join(res))
 
