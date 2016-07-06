@@ -1,6 +1,6 @@
 import networkx as nx
 import snap
-from random import shuffle, randint
+from random import shuffle, randint, choice
 from collections import defaultdict
 import matplotlib.pyplot as plt
 import pprint, pickle
@@ -67,23 +67,24 @@ def getVmax(G, S, L):
 	# flow[i][j] = max-flow in (S, V) when S[i] is swapped with V[j]
 	flow = [[None for _ in xrange(len(V))] for _ in xrange(len(S))]
 	setS = set(S)
+	without_swap_flow = nx.maximum_flow_value(getFlowGraph(G, S, L), 's', 't')
 	for i in xrange(len(S)):
 		for j in xrange(len(V)):
 			if V[j] not in setS:
 				temp = S[i]
 				S[i] = V[j]
 				flow_graph = getFlowGraph(G, S, L)
-				flow[i][j] = nx.maximum_flow_value(flow_graph, 's', 't')
+				flow[i][j] = nx.maximum_flow_value(flow_graph, 's', 't') > without_swap_flow
 				S[i] = temp
 
-	max_value = 0
-	swap_pair = None
+	swap_pair = []
 	for i in xrange(len(S)):
 		for j in xrange(len(V)):
-			if max_value < flow[i][j]:
-				swap_pair = (i,j)
-				max_value = flow[i][j]
-	i,j = swap_pair
+			swap_pair.append([i,j])
+
+	if swap_pair:
+		i,j = choice(swap_pair)
+	else: return S
 	S[i] = V[j]
 	return S
 
@@ -97,9 +98,10 @@ def doOneSwaps(G, S, L):
 	return S
 
 def main(N,adj,k,L):
-	iterations = 5
+	iterations = 10
 	result = 'Failed'
 	while iterations > 0 and result == 'Failed':
+		print iterations
 		G = getGraph(N,adj)
 		S = getS(G,k)
 		S = doOneSwaps(G, S, L)
@@ -129,8 +131,8 @@ def main(N,adj,k,L):
 		else:
 			result = 'Failed'
 		iterations -= 1
-	if result == 'Failed' and N <= 30:
-		pos = nx.spring_layout(G)
+	'''if result == 'Failed' and N <= 50:
+		pos = nx.spring_layout(G,k=0.5)
 		nx.draw_networkx_nodes(G, pos, nodelist=S, node_color='b', node_size=200)
 		nx.draw_networkx_nodes(G, pos, nodelist=list(set(G.nodes()) - set(S)), node_color='r', node_size=200)
 		nx.draw_networkx_edges(G, pos, edgeList=list(G.edges()))
@@ -139,8 +141,5 @@ def main(N,adj,k,L):
 		a = [[0 for _ in xrange(N)] for _ in xrange(N)]
 		for key, val in adj.iteritems():
 			a[key[0]][key[1]] = val
-		pickle.dump(a,open('failures/' + fname,'w'))
+		pickle.dump(a,open('failures/' + fname,'w'))'''
 	return result
-
-if __name__ == '__main__':
-	main()

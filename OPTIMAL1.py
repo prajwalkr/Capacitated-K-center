@@ -3,7 +3,9 @@ from pulp import *
 from unitSquare import UnitSquareGraph
 from random import randint, uniform
 from LocalSearchAlgorithm.ls import main as localSearch
-from pickle import load
+from pickle import load, dump
+import networkx as nx
+import matplotlib.pyplot as plt
 
 def randomGraph(n):
 	edges=input("No. of edges:")
@@ -112,7 +114,7 @@ def main():
 				W = uniform(W_LOW, W_HIGH)
 				opt, adj = integerProgram(N,dict(),p,W)
 				ls = localSearch(N,adj,int(opt.split('\t')[-1]),N/10)
-				result = opt + '\t' + str(p) + '\t' + ls
+				result = '\t'.join(opt, str(p), ls)
 				print result
 				res.append(result)
 			p <<= 1
@@ -122,4 +124,4 @@ def main():
 		f.write('\n'.join(res))
 
 if __name__ == '__main__':
-	main()
+	test_counter_cases()
