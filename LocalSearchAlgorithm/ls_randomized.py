@@ -94,7 +94,6 @@ def doOneSwaps(G, S, L):
 	while nx.maximum_flow_value(getFlowGraph(G, Vmax, L), 's', 't') > nx.maximum_flow_value(getFlowGraph(G, S, L), 's', 't'):
 		S = Vmax
 		Vmax = getVmax(G, S[:], L)
-	#print nx.maximum_flow_value(getFlowGraph(G, S, L), 's', 't')
 	return S
 
 def main(N,adj,k,L):
@@ -109,6 +108,7 @@ def main(N,adj,k,L):
 		result = None
 		#max flow value cannot be greater than the number of nodes in the graph or set V
 		if nx.maximum_flow_value(getFlowGraph(G, S, L), 's', 't') == N:
+			#uncomment the below to compute assignments
 			'''_,flows = nx.maximum_flow(getFlowGraph(G, S, L), 's', 't')
 			edges = set(G.edges())
 		        #if a flow exists along a particular path assigning v to that vertex in S
@@ -131,7 +131,9 @@ def main(N,adj,k,L):
 		else:
 			result = 'Failed'
 		iterations -= 1
-	'''if result == 'Failed' and N <= 50:
+	if result == 'Failed':
+		''' Save the graph as an image, and its adjacency matrix
+			as a pickle file '''
 		pos = nx.spring_layout(G,k=0.5)
 		nx.draw_networkx_nodes(G, pos, nodelist=S, node_color='b', node_size=200)
 		nx.draw_networkx_nodes(G, pos, nodelist=list(set(G.nodes()) - set(S)), node_color='r', node_size=200)
@@ -141,5 +143,5 @@ def main(N,adj,k,L):
 		a = [[0 for _ in xrange(N)] for _ in xrange(N)]
 		for key, val in adj.iteritems():
 			a[key[0]][key[1]] = val
-		pickle.dump(a,open('failures/' + fname,'w'))'''
+		pickle.dump(a,open('failures/' + fname,'w'))
 	return result

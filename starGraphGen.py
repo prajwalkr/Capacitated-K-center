@@ -12,12 +12,6 @@ class Graph(object):
 			self.N = self.k*self.l
 			self.p = specs.p	# supplementary edge probability
 			self.starGraph()
-
-		elif specs.struct == 'random':
-			self.N = specs.N 
-			self.edges = specs.M
-			self.randomGraph()
-
 		else:
 			raise ValueError('Invalid specifications!')
 
@@ -30,14 +24,6 @@ class Graph(object):
 				self.adj[(x,y)] = 0
 		for i in xrange(self.N):
 			self.adj[(i,i)] = 1
-
-	def randomGraph(self):
-		UGraph = snap.GenRndGnm(snap.PUNGraph, self.N, self.edges)
-		self.initAdj()
-
-		for EI in UGraph.Edges():
-			self.adj[(EI.GetSrcNId(),EI.GetDstNId())] = 1
-			self.adj[(EI.GetDstNId(), EI.GetSrcNId())] = 1
 
 	def starGraph(self):
 		self.initAdj()

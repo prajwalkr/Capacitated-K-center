@@ -8,7 +8,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 def randomGraph(n):
-	edges=input("No. of edges:")
+	edges=2*n
 	UGraph = snap.GenRndGnm(snap.PUNGraph, n, edges)
 	adj = dict()
 	for x in range(n):
@@ -22,9 +22,11 @@ def randomGraph(n):
 	return adj
 
 def integerProgram(N,adj=None,p=None,W=None):
-	# adj = randomGraph(N)
-	if not adj: 
+	if adj == 'unit': 
 		adj = UnitSquareGraph(N,p,W).adj
+	elif adj == 'random':
+		adj = randomGraph(N)
+
 	edges = (sum([val for key, val in adj.iteritems()]) - N)/2
 	L = N/10
 
@@ -66,16 +68,20 @@ def integerProgram(N,adj=None,p=None,W=None):
 
 	# solve the problem using GLPK
 	status = prob.solve(GLPK(msg=0))
-	list_var=prob.variables()
-	list_cen=list_var[(len(list_var)-N):]
-	count=0
+	list_var = prob.variables()
+	list_cen = list_var[(len(list_var)-N):]
+	count = 0
 	for v in list_cen:
-	    if(v.varValue==1.0):
-	    	count+= 1
+	    if(v.varValue == 1.0):
+	    	count += 1
 	result = '{}\t{}\t{}\t{}'.format(N,edges, LpStatus[prob.status], count)
 	return result, adj
 
 def test_counter_cases():
+	'''
+		Execute the optimal and Local search for
+		countercase graphs saved in the failures/test/ folder.
+	'''
 	header = '\t'.join(['Nodes','Edges','Status','K','Local Search'])
 	print header
 	res = []
@@ -97,14 +103,30 @@ def test_counter_cases():
 		pass
 	with open('results','w') as f:
 		f.write('\n'.join(res))
-	
-def main():
+
+def randomTester():
+	'''
+		Test random graphs
+	'''
+	print '\t'.join(['Nodes','Edges','Status','K','Local Search'])
+	NODE_LIMIT = 80
+	N = randint(20, NODE_LIMIT)
+	opt, adj = integerProgram(N,'random')
+	ls = localSearch(N,adj,int(opt.split('\t')[-1]),N/10)
+	result = '\t'.join([opt, ls])
+	print result
+	return result
+
+def unitTester():
+	'''
+		Test on unit square graphs
+	'''
 	header = '\t'.join(['Nodes','Edges','Status','K','P','Local Search'])
 	print header
 	p = 1
 	RAND_GRAPH_COUNT = 10
 	P_LIMIT = 1 << 10
-	NODE_LIMIT = 40
+	NODE_LIMIT = 80
 	W_LOW, W_HIGH = 0.2, 0.4
 	res = [header]
 	try:
@@ -112,9 +134,9 @@ def main():
 			for _ in xrange(RAND_GRAPH_COUNT):
 				N = randint(20,NODE_LIMIT)
 				W = uniform(W_LOW, W_HIGH)
-				opt, adj = integerProgram(N,dict(),p,W)
+				opt, adj = integerProgram(N,'unit',p,W)
 				ls = localSearch(N,adj,int(opt.split('\t')[-1]),N/10)
-				result = '\t'.join(opt, str(p), ls)
+				result = '\t'.join([opt, str(p), ls])
 				print result
 				res.append(result)
 			p <<= 1
@@ -124,4 +146,4 @@ def main():
 		f.write('\n'.join(res))
 
 if __name__ == '__main__':
-	test_counter_cases()
+	unitTester()

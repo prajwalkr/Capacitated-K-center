@@ -4,7 +4,7 @@ from random import shuffle, randint
 from collections import defaultdict
 import matplotlib.pyplot as plt
 import pprint, pickle
-from ls_random import main as randomizedLS
+from ls_randomized import main as randomizedLS
 
 #Generating a random graph using snap
 def randomGraph(n,edges):
@@ -94,11 +94,10 @@ def doOneSwaps(G, S, L):
 	while nx.maximum_flow_value(getFlowGraph(G, Vmax, L), 's', 't') > nx.maximum_flow_value(getFlowGraph(G, S, L), 's', 't'):
 		S = Vmax
 		Vmax = getVmax(G, S[:], L)
-	#print nx.maximum_flow_value(getFlowGraph(G, S, L), 's', 't')
 	return S
 
 def main(N,adj,k,L):
-	iterations = 10
+	iterations = 5
 	result = 'Failed'
 	while iterations > 0 and result == 'Failed':
 		print iterations
@@ -109,6 +108,7 @@ def main(N,adj,k,L):
 		result = None
 		#max flow value cannot be greater than the number of nodes in the graph or set V
 		if nx.maximum_flow_value(getFlowGraph(G, S, L), 's', 't') == N:
+			# uncomment this to get assignments
 			'''_,flows = nx.maximum_flow(getFlowGraph(G, S, L), 's', 't')
 			edges = set(G.edges())
 		        #if a flow exists along a particular path assigning v to that vertex in S
@@ -131,9 +131,14 @@ def main(N,adj,k,L):
 		else:
 			result = 'Failed'
 		iterations -= 1
+
 	if result == 'Failed':
+		''' Do randomization if the max-cover approach fails'''
 		result = randomizedLS(N, adj, k, L)
-	'''if result == 'Failed' and N <= 30:
+
+	if result == 'Failed':
+		''' Save the graph as an image, and its adjacency matrix
+			as a pickle file '''
 		pos = nx.spring_layout(G)
 		nx.draw_networkx_nodes(G, pos, nodelist=S, node_color='b', node_size=200)
 		nx.draw_networkx_nodes(G, pos, nodelist=list(set(G.nodes()) - set(S)), node_color='r', node_size=200)
@@ -143,5 +148,6 @@ def main(N,adj,k,L):
 		a = [[0 for _ in xrange(N)] for _ in xrange(N)]
 		for key, val in adj.iteritems():
 			a[key[0]][key[1]] = val
-		pickle.dump(a,open('failures/' + fname,'w'))'''
+		pickle.dump(a,open('failures/' + fname,'w'))
+
 	return result
