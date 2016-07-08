@@ -7,7 +7,7 @@ class UnitSquareGraph(object):
 		self.P = P
 		self.W = W
 		points = [[random(),random()] for _ in xrange(self.N)]
-		self.dist = [[None for _ in xrange(self.N)] for _ in xrange(self.N)
+		self.dist = [[None for _ in xrange(self.N)] for _ in xrange(self.N)]
 		for i in xrange(self.N):
 			for j in xrange(self.N):
 				self.dist[i][j] = self.dist[j][i] = self.lpNorm(points[i], points[j], self.P)
