@@ -40,7 +40,8 @@ def getS(G,k):
 	shuffle(nodes)
 	return nodes[:k]
 
-#making FG a directed flowgraph to give as input to max flow functions ( s-->V-->S-->t )
+#making FG a directed flowgraph to give as input to max flow functions
+#( s-->V-->S-->t )
 def getFlowGraph(G, S, L):
 	FG = nx.DiGraph()
 	N = len(G.nodes())
@@ -91,7 +92,8 @@ def getVmax(G, S, L):
 #changing S and Vmax by one swaps so as to achieve the max flow possible after each obtained S
 def doOneSwaps(G, S, L):
 	Vmax = getVmax(G, S[:], L)
-	while nx.maximum_flow_value(getFlowGraph(G, Vmax, L), 's', 't') > nx.maximum_flow_value(getFlowGraph(G, S, L), 's', 't'):
+	while nx.maximum_flow_value(getFlowGraph(G, Vmax, L), 's', 't') >
+	      nx.maximum_flow_value(getFlowGraph(G, S, L), 's', 't'):
 		S = Vmax
 		Vmax = getVmax(G, S[:], L)
 	return S
