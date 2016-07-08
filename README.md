@@ -1,7 +1,9 @@
 ## Implementation code for Capacitated K-Center problem
 
-TODO
+This repository contains code for the
 
-    - Make testcases using L as a constant factor of number of nodes.
-    - Implement the local search algorithm using K obtained from the opt.py
-
+- Local Search randomized algorithm
+- Optimal algorithm based on LP. 
+- Unit Square L^p norm distance - based graph generator
+- K-stars graph generator
+- Random graph generator
